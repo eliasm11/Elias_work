@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Akronim' rel='stylesheet'>
+    <link rel="stylesheet" href="/css/admin.css">
+    <title>Orders</title>
+</head>
+
+<body>
+    <header>
+       
+        <p class="logo"> SS </p>
+
+        <div class="title">
+            <h1>Sportswear <br>Store</h1>
+        </div>
+    </header>
+
+    <!-- orders container -->
+    <section class="order-section">
+        <div class="orders">
+            <h2 class="order-header " id="listofOdera"> Oreders <i class='bx bxs-chevron-down'></i> <input type="date"
+                    id="date" onchange="getOrders()" /> </h2>
+        </div>
+        <div class="orders" id="listOforders">
+
+        </div>
+    </section>
+    <script>
+
+        if (document.getElementById("date").value != "") {
+            getOrders()
+        }
+
+        function getOrders() {
+            document.getElementById("listOforders").innerHTML = ""
+          
+            let date = document.getElementById("date").value.split("-")
+            if (date[1][0] == '0' ){
+                date[1] = date[1].replace("0", "")
+            }
+            if (date[2][0] == '0' ){
+                date[2] = date[2].replace("0", "")
+   
+            }
+            
+            date = date[0] + "-" + date[1] + "-" + date[2]
+ 
+            fetch("/admin/order", {
+                method: "POST",
+                headers: {
+                    'Content-Type': "application/x-www-form-urlencoded"
+                },
+                body: `date=${date}`
+            }).then(Response => Response.json()).then(data => {
+            
+                if (typeof data == "string") {
+                    alert("no orders")
+                    return
+                }
+                data.forEach(s => {
+                    let element = JSON.parse(s)
+                    let e = document.createElement("ul")
+                    e.classList.add("order")
+                    e.innerHTML = `
+                    
+                <li>
+                    <h3>Id:</h3> <span>${element.id}</span>
+                </li>
+                
+                <li>
+                    <h3>Username:</h3> <span>${element.user.username}</span>
+                </li>
+                
+                <li>
+                    <h3>Phone</h3>
+                    <span>${element.user.phone}</span>
+                </li>
+                <li>
+                    <h3>Address :</h3><span>${element.user.addr}</span>
+                </li>
+                <a href="/admin/order/user?username=${element.user.username}&date=${date}">
+                <li>
+                    <span class="det">More Details...</span>
+                </li>
+            </a>
+                
+                `
+                    document.getElementById("listOforders").appendChild(e)
+                });
+
+
+            })
+
+        }
+
+    </script>
+    <a href="/admin"><i id="back-btn" class='bx bx-arrow-back'></i></a>
+
+</body>
+
+</html>
